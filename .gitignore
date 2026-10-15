@@ -1,0 +1,31 @@
+# Eclipse workspace metadata
+.metadata/
+.recommenders/
+.classpath
+.project
+
+# PDE / Eclipse local state
+*.launch
+.settings/
+*.bak
+
+# Build output
+bin/
+target/
+build/
+
+# Java
+*.class
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+*~

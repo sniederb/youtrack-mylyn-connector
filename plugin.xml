@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+	<extension id="repositoryUi" name="YouTrack Repository" point="org.eclipse.mylyn.tasks.ui.repositories">
+		<connectorUi class="ch.want.mylyn.youtrack.ui.YouTrackConnectorUi" name="YouTrack"/>
+	</extension>
+	<extension id="repositoryCore" name="YouTrack Repository" point="org.eclipse.mylyn.tasks.core.repositories">
+		<connectorCore id="youtrack" class="ch.want.mylyn.youtrack.core.YouTrackRepositoryConnector" name="YouTrack"/>
+	</extension>
+</plugin>
