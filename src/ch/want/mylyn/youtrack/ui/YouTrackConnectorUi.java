@@ -1,8 +1,10 @@
 package ch.want.mylyn.youtrack.ui;
 
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.mylyn.tasks.core.AbstractRepositoryConnector;
 import org.eclipse.mylyn.tasks.core.IRepositoryQuery;
+import org.eclipse.mylyn.tasks.core.ITask;
 import org.eclipse.mylyn.tasks.core.ITaskMapping;
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.ui.AbstractRepositoryConnectorUi;
@@ -46,5 +48,17 @@ public class YouTrackConnectorUi extends AbstractRepositoryConnectorUi {
     @Override
     public boolean hasSearchPage() {
         return false;
+    }
+
+    @Override
+    public ImageDescriptor getTaskKindOverlay(final ITask task) {
+        final String issueType = task.getTaskKind();
+        if ("Bug".equalsIgnoreCase(issueType) || "Exception".equalsIgnoreCase(issueType)) {
+            return YouTrackImages.OVERLAY_BUG;
+        }
+        if ("Feature".equalsIgnoreCase(issueType)) {
+            return YouTrackImages.OVERLAY_FEATURE;
+        }
+        return YouTrackImages.OVERLAY_TASK;
     }
 }

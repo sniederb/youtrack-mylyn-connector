@@ -39,9 +39,39 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
         return PluginConstants.YOUTRACK_LABEL;
     }
 
+    /**
+     * Get repository URL from something like {@code https://solivagant.youtrack.cloud/issue/DEMO-11/Import-issues-and-articles}
+     */
     @Override
     public String getRepositoryUrlFromTaskUrl(final String url) {
-        // TODO
+        if (url == null) {
+            return null;
+        }
+        final int index = url.indexOf(PluginConstants.ISSUE_URL_PATH);
+        return index >= 0 ? url.substring(0, index) : null;
+    }
+
+    /**
+     * Get task ID from something like {@code https://solivagant.youtrack.cloud/issue/DEMO-11/Import-issues-and-articles}
+     */
+    @Override
+    public String getTaskIdFromTaskUrl(final String url) {
+        if (url == null) {
+            return null;
+        }
+        final int index = url.indexOf(PluginConstants.ISSUE_URL_PATH);
+        if (index != -1) {
+            final int taskIdStart = index + PluginConstants.ISSUE_URL_PATH.length();
+            int taskIdEnd = url.indexOf('/', taskIdStart);
+            if (taskIdEnd > taskIdStart) {
+                return url.substring(taskIdStart, taskIdEnd);
+            }
+            taskIdEnd = url.indexOf('?', taskIdStart);
+            if (taskIdEnd > taskIdStart) {
+                return url.substring(taskIdStart, taskIdEnd);
+            }
+            return url.substring(taskIdStart);
+        }
         return null;
     }
 
@@ -53,7 +83,7 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
             Policy.checkCanceled(ourMonitor);
             final AuthenticationCredentials credentials = repository.getCredentials(AuthenticationType.REPOSITORY);
             final YouTrackApi api = new YouTrackApiImpl(repository.getRepositoryUrl(), credentials.getPassword());
-            final Issue issue = api.getIssue(taskId);
+            final Issue issue = api.getIssue(TaskDataMapper.convertFromTaskDataId(taskId));
             Policy.checkCanceled(ourMonitor);
             return createTaskData(repository, issue);
         } catch (final OperationCanceledException ex) {
@@ -66,20 +96,13 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
     }
 
     @Override
-    public String getTaskIdFromTaskUrl(final String url) {
-        // TODO
-        return null;
-    }
-
-    @Override
     public String getTaskUrl(final String repositoryUrl, final String taskId) {
         return TaskDataMapper.getTaskUrl(repositoryUrl, taskId);
     }
 
     @Override
-    public boolean hasTaskChanged(final TaskRepository repository, final ITask arg1, final TaskData arg2) {
-        // TODO
-        return false;
+    public boolean hasTaskChanged(final TaskRepository repository, final ITask task, final TaskData taskData) {
+        return taskData.isPartial();
     }
 
     @Override
@@ -102,6 +125,7 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
             for (final Issue issue : issues) {
                 Policy.checkCanceled(ourMonitor);
                 final TaskData taskData = createTaskData(repository, issue);
+                taskData.setPartial(true);
                 dataCollector.accept(taskData);
             }
             return Status.OK_STATUS;

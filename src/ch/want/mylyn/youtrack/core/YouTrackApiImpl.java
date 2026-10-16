@@ -38,7 +38,8 @@ public class YouTrackApiImpl implements YouTrackApi {
     @Override
     public SavedQuery getSavedQuery(final String savedQueryId) throws IOException {
         final String encodedSavedQueryId = URLEncoder.encode(savedQueryId, StandardCharsets.ISO_8859_1);
-        final String jsonResponse = httpClient.get("/api/savedQueries/" + encodedSavedQueryId + "?fields=id,name,issues(id,idReadable,summary)");
+        final String jsonResponse = httpClient.get("/api/savedQueries/" + encodedSavedQueryId +
+            "?fields=id,name,issues(id,idReadable,summary,customFields(name,value(name,login,fullName,presentation)))");
         return ObjectMapperAccessor.objectMapper().readValue(jsonResponse, SavedQuery.class);
     }
 
@@ -46,7 +47,7 @@ public class YouTrackApiImpl implements YouTrackApi {
     public Issue getIssue(final String taskId) throws IOException {
         final String encodedTaskId = URLEncoder.encode(taskId, StandardCharsets.ISO_8859_1);
         final String jsonResponse = httpClient.get("/api/issues/" + encodedTaskId +
-            "?fields=id,idReadable,summary,description,created,updated,resolved,project(id,name,shortName),reporter(id,login,name),assignee(id,login,name),customFields(name,value(name,login,fullName,presentation))");
+            "?fields=id,idReadable,summary,description,created,updated,resolved,project(id,name,shortName),reporter(id,login,name),assignee(id,login,name),customFields(name,value(name,login,fullName,presentation)),comments(id,created,text,author(id,login,name))");
         return ObjectMapperAccessor.objectMapper().readValue(jsonResponse, Issue.class);
     }
 }

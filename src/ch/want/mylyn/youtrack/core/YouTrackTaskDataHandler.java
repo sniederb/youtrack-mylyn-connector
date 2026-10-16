@@ -16,7 +16,7 @@ public class YouTrackTaskDataHandler extends AbstractTaskDataHandler {
 
     @Override
     public TaskAttributeMapper getAttributeMapper(final TaskRepository repository) {
-        return new TaskAttributeMapper(repository);
+        return new YouTrackTaskAttributeMapper(repository);
     }
 
     @Override

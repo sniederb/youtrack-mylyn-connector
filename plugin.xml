@@ -4,6 +4,9 @@
 	<extension id="repositoryUi" name="YouTrack Repository" point="org.eclipse.mylyn.tasks.ui.repositories">
 		<connectorUi class="ch.want.mylyn.youtrack.ui.YouTrackConnectorUi" name="YouTrack"/>
 	</extension>
+	<extension point="org.eclipse.mylyn.tasks.ui.editors">
+   		<pageFactory class="ch.want.mylyn.youtrack.ui.editor.YouTrackTaskEditorPageFactory" id="ch.want.mylyn.youtrack.ui.pageFactory" />
+	</extension>
 	<extension id="repositoryCore" name="YouTrack Repository" point="org.eclipse.mylyn.tasks.core.repositories">
 		<connectorCore id="youtrack" class="ch.want.mylyn.youtrack.core.YouTrackRepositoryConnector" name="YouTrack"/>
 	</extension>
