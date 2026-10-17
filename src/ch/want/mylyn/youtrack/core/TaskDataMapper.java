@@ -2,6 +2,9 @@ package ch.want.mylyn.youtrack.core;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 import org.eclipse.mylyn.tasks.core.TaskRepository;
 import org.eclipse.mylyn.tasks.core.data.AbstractTaskDataHandler;
@@ -10,8 +13,12 @@ import org.eclipse.mylyn.tasks.core.data.TaskAttributeMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskCommentMapper;
 import org.eclipse.mylyn.tasks.core.data.TaskData;
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import ch.want.mylyn.youtrack.PluginConstants;
 import ch.want.mylyn.youtrack.YouTrackAttribute;
+import ch.want.mylyn.youtrack.model.CustomField;
 import ch.want.mylyn.youtrack.model.Issue;
 import ch.want.mylyn.youtrack.model.IssueComment;
 
@@ -19,12 +26,19 @@ public class TaskDataMapper {
 
     private final TaskRepository repository;
     private final AbstractTaskDataHandler dataHandler;
-    private final Issue youtrackIssue;
+    private Issue youtrackIssue;
+    private TaskData taskData;
 
     public TaskDataMapper(final TaskRepository repository, final AbstractTaskDataHandler dataHandler, final Issue youtrackIssue) {
         this.repository = repository;
         this.dataHandler = dataHandler;
         this.youtrackIssue = youtrackIssue;
+    }
+
+    public TaskDataMapper(final TaskRepository repository, final AbstractTaskDataHandler dataHandler, final TaskData taskData) {
+        this.repository = repository;
+        this.dataHandler = dataHandler;
+        this.taskData = taskData;
     }
 
     public static String getTaskUrl(final String repositoryUrl, final String taskId) {
@@ -42,72 +56,44 @@ public class TaskDataMapper {
 
     public TaskData getTaskData() {
         final TaskAttributeMapper mapper = dataHandler.getAttributeMapper(repository);
-        final TaskData taskData = new TaskData(mapper, PluginConstants.CONNECTOR_KIND, repository.getRepositoryUrl(), convertToTaskDataId(youtrackIssue.id()));
+        taskData = new TaskData(mapper, PluginConstants.CONNECTOR_KIND, repository.getRepositoryUrl(), convertToTaskDataId(youtrackIssue.getId()));
         taskData.setVersion(PluginConstants.TASKDATA_VERSION);
-        createAttribute(taskData, YouTrackAttribute.ID, youtrackIssue.id());
-        createAttribute(taskData, YouTrackAttribute.KEY, youtrackIssue.idReadable());
-        if (youtrackIssue.customFields() != null) {
-            youtrackIssue.customFields().stream()
-                .filter(fld -> "Priority".equalsIgnoreCase(fld.name()))
-                .filter(fld -> fld.value() != null)
-                .findFirst()
-                .ifPresentOrElse(fld -> createAttribute(taskData, YouTrackAttribute.PRIORITY, fld.value().path("name").asText()),
-                    () -> createAttribute(taskData, YouTrackAttribute.PRIORITY));
-            youtrackIssue.customFields().stream()
-                .filter(fld -> "Type".equalsIgnoreCase(fld.name()))
-                .filter(fld -> fld.value() != null)
-                .findFirst()
-                .ifPresentOrElse(
-                    fld -> createAttribute(taskData, YouTrackAttribute.TYPE, fld.value().path("name").asText()),
-                    () -> createAttribute(taskData, YouTrackAttribute.TYPE));
-            youtrackIssue.customFields().stream()
-                .filter(fld -> "State".equalsIgnoreCase(fld.name()))
-                .filter(fld -> fld.value() != null)
-                .findFirst()
-                .ifPresentOrElse(fld -> createAttribute(taskData, YouTrackAttribute.STATUS, fld.value().path("name").asText()),
-                    () -> createAttribute(taskData, YouTrackAttribute.STATUS));
-            youtrackIssue.customFields().stream()
-                .filter(fld -> "Assignee".equalsIgnoreCase(fld.name()))
-                .filter(fld -> fld.value() != null)
-                .findFirst()
-                .ifPresentOrElse(fld -> createAttribute(taskData, YouTrackAttribute.ASSIGNED, fld.value().path("name").asText()),
-                    () -> createAttribute(taskData, YouTrackAttribute.ASSIGNED));
+        createAttribute(YouTrackAttribute.ID, youtrackIssue.getId());
+        createAttribute(YouTrackAttribute.KEY, youtrackIssue.getIdReadable());
+        setCustomFieldValue("Priority", YouTrackAttribute.PRIORITY);
+        setCustomFieldValue("Type", YouTrackAttribute.TYPE);
+        setCustomFieldValue("State", YouTrackAttribute.STATUS);
+        setCustomFieldValue("Assignee", YouTrackAttribute.ASSIGNED);
+        createAttribute(YouTrackAttribute.SUMMARY, youtrackIssue.getSummary());
+        createAttribute(YouTrackAttribute.DESCRIPTION, youtrackIssue.getDescription());
+        createAttribute(YouTrackAttribute.TASK_URL, getTaskUrl(repository.getRepositoryUrl(), youtrackIssue.getIdReadable()));
+        createDateAttribute(YouTrackAttribute.CREATION_DATE, youtrackIssue.getCreated(), mapper);
+        createDateAttribute(YouTrackAttribute.MODIFIED_DATE, youtrackIssue.getUpdated(), mapper);
+        if (youtrackIssue.getReporter() == null) {
+            createAttribute(YouTrackAttribute.REPORTER);
         } else {
-            createAttribute(taskData, YouTrackAttribute.PRIORITY);
-            createAttribute(taskData, YouTrackAttribute.TYPE);
-            createAttribute(taskData, YouTrackAttribute.STATUS);
-            createAttribute(taskData, YouTrackAttribute.ASSIGNED);
+            createAttribute(YouTrackAttribute.REPORTER, youtrackIssue.getReporter().getName());
         }
-        createAttribute(taskData, YouTrackAttribute.SUMMARY, youtrackIssue.summary());
-        createAttribute(taskData, YouTrackAttribute.DESCRIPTION, youtrackIssue.description());
-        createAttribute(taskData, YouTrackAttribute.TASK_URL, getTaskUrl(repository.getRepositoryUrl(), youtrackIssue.idReadable()));
-        createDateAttribute(taskData, YouTrackAttribute.CREATION_DATE, youtrackIssue.created(), mapper);
-        createDateAttribute(taskData, YouTrackAttribute.MODIFIED_DATE, youtrackIssue.updated(), mapper);
-        if (youtrackIssue.reporter() == null) {
-            createAttribute(taskData, YouTrackAttribute.REPORTER);
+        if (youtrackIssue.getProject() == null) {
+            createAttribute(YouTrackAttribute.PROJECT);
         } else {
-            createAttribute(taskData, YouTrackAttribute.REPORTER, youtrackIssue.reporter().name());
-        }
-        if (youtrackIssue.project() == null) {
-            createAttribute(taskData, YouTrackAttribute.PROJECT);
-        } else {
-            createAttribute(taskData, YouTrackAttribute.PROJECT, youtrackIssue.project().name());
+            createAttribute(YouTrackAttribute.PROJECT, youtrackIssue.getProject().getName());
         }
         // STATE is part of CustomField > StateBundleElement
         final TaskAttribute root = taskData.getRoot();
-        final List<IssueComment> comments = youtrackIssue.comments();
+        final List<IssueComment> comments = youtrackIssue.getComments();
         if (comments != null) {
             int commentNumber = 0;
             for (final IssueComment comment : comments) {
                 final TaskAttribute commentAttribute = root.createAttribute(TaskAttribute.PREFIX_COMMENT + commentNumber);
                 final TaskCommentMapper commentMapper = new TaskCommentMapper();
-                if (comment.author() != null) {
-                    commentMapper.setAuthor(repository.createPerson(comment.author().name()));
+                if (comment.getAuthor() != null) {
+                    commentMapper.setAuthor(repository.createPerson(comment.getAuthor().getName()));
                 }
-                if (comment.created() != null) {
-                    commentMapper.setCreationDate(new Date(comment.created()));
+                if (comment.getCreated() != null) {
+                    commentMapper.setCreationDate(new Date(comment.getCreated()));
                 }
-                commentMapper.setText(comment.text());
+                commentMapper.setText(comment.getText());
                 commentMapper.setNumber(commentNumber);
                 commentMapper.applyTo(commentAttribute);
                 commentNumber++;
@@ -116,29 +102,95 @@ public class TaskDataMapper {
         return taskData;
     }
 
-    private TaskAttribute createAttribute(final TaskData data, final YouTrackAttribute key, final String value) {
-        final TaskAttribute attribute = createAttribute(data, key);
+    /**
+     * @param changedOldAttributes
+     *            The collection of attributes Mylyn considers "changed", each holding the original value.
+     * @return
+     */
+    public Issue getIssue(final Set<TaskAttribute> changedOldAttributes) {
+        youtrackIssue = new Issue();
+        youtrackIssue.setId(getValue(YouTrackAttribute.ID));
+        youtrackIssue.setIdReadable(getValue(YouTrackAttribute.KEY));
+        getChangedValue(YouTrackAttribute.SUMMARY, changedOldAttributes).ifPresent(youtrackIssue::setSummary);
+        getChangedValue(YouTrackAttribute.DESCRIPTION, changedOldAttributes).ifPresent(youtrackIssue::setDescription);
+        getChangedValue(YouTrackAttribute.PRIORITY, changedOldAttributes)
+            .map(v -> customField("Priority", v))
+            .ifPresent(fld -> youtrackIssue.getCustomFields().add(fld));
+        getChangedValue(YouTrackAttribute.TYPE, changedOldAttributes)
+            .map(v -> customField("Type", v))
+            .ifPresent(fld -> youtrackIssue.getCustomFields().add(fld));
+        getChangedValue(YouTrackAttribute.STATUS, changedOldAttributes)
+            .map(v -> customField("State", v))
+            .ifPresent(fld -> youtrackIssue.getCustomFields().add(fld));
+        getChangedValue(YouTrackAttribute.ASSIGNED, changedOldAttributes)
+            .map(v -> customField("Assignee", v))
+            .ifPresent(fld -> youtrackIssue.getCustomFields().add(fld));
+        final TaskAttribute attribute = taskData.getRoot().getMappedAttribute(TaskAttribute.COMMENT_NEW);
+        if (attribute != null) {
+            final IssueComment newComment = new IssueComment();
+            newComment.setText(taskData.getAttributeMapper().getValue(attribute));
+            youtrackIssue.setComments(List.of(newComment));
+        }
+        return youtrackIssue;
+    }
+
+    private TaskAttribute createAttribute(final YouTrackAttribute key, final String value) {
+        final TaskAttribute attribute = createAttribute(key);
         if (value != null) {
             attribute.setValue(value);
         }
         return attribute;
     }
 
-    private TaskAttribute createDateAttribute(final TaskData data, final YouTrackAttribute key, final Long timestamp, final TaskAttributeMapper mapper) {
-        final TaskAttribute attribute = createAttribute(data, key);
+    private TaskAttribute createDateAttribute(final YouTrackAttribute key, final Long timestamp, final TaskAttributeMapper mapper) {
+        final TaskAttribute attribute = createAttribute(key);
         if (timestamp != null) {
             mapper.setDateValue(attribute, new Date(timestamp));
         }
         return attribute;
     }
 
-    private TaskAttribute createAttribute(final TaskData data, final YouTrackAttribute key) {
-        final TaskAttribute attribute = data.getRoot().createAttribute(key.id());
+    private TaskAttribute createAttribute(final YouTrackAttribute key) {
+        final TaskAttribute attribute = taskData.getRoot().createAttribute(key.id());
         attribute.getMetaData().defaults() //
             .setReadOnly(key.isReadOnly())
             .setKind(key.getKind())
             .setLabel(key.getLabel())
             .setType(key.getControlType());
         return attribute;
+    }
+
+    private void setCustomFieldValue(final String customFieldName, final YouTrackAttribute target) {
+        if (youtrackIssue.getCustomFields() == null) {
+            createAttribute(target);
+        } else {
+            youtrackIssue.getCustomFields().stream()
+                .filter(fld -> customFieldName.equalsIgnoreCase(fld.getName()))
+                .filter(fld -> fld.getValue() != null)
+                .findFirst()
+                .ifPresentOrElse(fld -> createAttribute(target, fld.getValue().path("name").asText()),
+                    () -> createAttribute(target));
+        }
+    }
+
+    private String getValue(final YouTrackAttribute key) {
+        return taskData.getRoot().getAttribute(key.id()).getValue();
+    }
+
+    private Optional<String> getChangedValue(final YouTrackAttribute key, final Set<TaskAttribute> changedOldAttributes) {
+        final boolean isChangeKey = changedOldAttributes.stream().anyMatch(attr -> Objects.equals(key.id(), attr.getId()));
+        if (isChangeKey) {
+            return Optional.ofNullable(getValue(key));
+        }
+        return Optional.empty();
+    }
+
+    private CustomField customField(final String fieldName, final String value) {
+        final CustomField field = new CustomField();
+        field.setName(fieldName);
+        final ObjectNode jsonNode = JsonNodeFactory.instance.objectNode();
+        jsonNode.put("value", value);
+        field.setValue(jsonNode);
+        return field;
     }
 }

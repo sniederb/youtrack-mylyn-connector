@@ -14,6 +14,8 @@ import ch.want.mylyn.youtrack.model.User;
 
 public class YouTrackApiImpl implements YouTrackApi {
 
+    private static final String ISSUE_FIELDS_SHORT = "id,idReadable,summary,customFields(name,value(name,login,fullName,presentation))";
+    private static final String ISSUE_FIELDS_FULL = "id,idReadable,summary,description,created,updated,resolved,project(id,name,shortName),reporter(id,login,name),assignee(id,login,name),customFields(name,value(name,login,fullName,presentation)),comments(id,created,text,author(id,login,name))";
     private static final TypeReference<List<SavedQuery>> SAVEDQUERY_TYPE = new TypeReference<>() {
     };
     private final HttpClientWrapper httpClient;
@@ -38,16 +40,21 @@ public class YouTrackApiImpl implements YouTrackApi {
     @Override
     public SavedQuery getSavedQuery(final String savedQueryId) throws IOException {
         final String encodedSavedQueryId = URLEncoder.encode(savedQueryId, StandardCharsets.ISO_8859_1);
-        final String jsonResponse = httpClient.get("/api/savedQueries/" + encodedSavedQueryId +
-            "?fields=id,name,issues(id,idReadable,summary,customFields(name,value(name,login,fullName,presentation)))");
+        final String jsonResponse = httpClient.get("/api/savedQueries/" + encodedSavedQueryId + "?fields=id,name,issues(" + ISSUE_FIELDS_SHORT + ")");
         return ObjectMapperAccessor.objectMapper().readValue(jsonResponse, SavedQuery.class);
     }
 
     @Override
     public Issue getIssue(final String taskId) throws IOException {
         final String encodedTaskId = URLEncoder.encode(taskId, StandardCharsets.ISO_8859_1);
-        final String jsonResponse = httpClient.get("/api/issues/" + encodedTaskId +
-            "?fields=id,idReadable,summary,description,created,updated,resolved,project(id,name,shortName),reporter(id,login,name),assignee(id,login,name),customFields(name,value(name,login,fullName,presentation)),comments(id,created,text,author(id,login,name))");
+        final String jsonResponse = httpClient.get("/api/issues/" + encodedTaskId + "?fields=" + ISSUE_FIELDS_FULL);
+        return ObjectMapperAccessor.objectMapper().readValue(jsonResponse, Issue.class);
+    }
+
+    @Override
+    public Issue saveIssue(final Issue issue) throws IOException {
+        final String jsonBody = ObjectMapperAccessor.objectMapper().writeValueAsString(issue);
+        final String jsonResponse = httpClient.post("/api/issues/" + issue.getId() + "?fields=" + ISSUE_FIELDS_FULL, jsonBody);
         return ObjectMapperAccessor.objectMapper().readValue(jsonResponse, Issue.class);
     }
 }

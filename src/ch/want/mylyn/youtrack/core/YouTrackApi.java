@@ -16,4 +16,6 @@ public interface YouTrackApi {
     SavedQuery getSavedQuery(String savedQueryId) throws IOException;
 
     Issue getIssue(String taskId) throws IOException;
+
+    Issue saveIssue(Issue issue) throws IOException;
 }

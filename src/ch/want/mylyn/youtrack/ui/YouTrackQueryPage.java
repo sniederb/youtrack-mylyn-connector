@@ -60,15 +60,15 @@ public class YouTrackQueryPage extends AbstractRepositoryQueryPage {
         final int index = savedQueriesCombo.getSelectionIndex();
         if (index >= 0) {
             final SavedQuery selected = savedQueries.get(index);
-            repositoryQuery.setAttribute(PluginConstants.ATTRIBUTE_SAVED_QUERY_ID, selected.id());
-            repositoryQuery.setSummary(selected.name());
+            repositoryQuery.setAttribute(PluginConstants.ATTRIBUTE_SAVED_QUERY_ID, selected.getId());
+            repositoryQuery.setSummary(selected.getName());
         }
     }
 
     @Override
     public String getQueryTitle() {
         final int index = savedQueriesCombo.getSelectionIndex();
-        return index < 0 ? "" : savedQueries.get(index).name();
+        return index < 0 ? "" : savedQueries.get(index).getName();
     }
 
     private void loadSavedQueries() {
@@ -108,11 +108,11 @@ public class YouTrackQueryPage extends AbstractRepositoryQueryPage {
                     savedQueriesCombo.removeAll();
                     savedQueries.addAll(results);
                     savedQueries.stream()
-                        .map(SavedQuery::name)
+                        .map(SavedQuery::getName)
                         .forEach(savedQueriesCombo::add);
                     final String selectedId = query == null ? null : query.getAttribute(PluginConstants.ATTRIBUTE_SAVED_QUERY_ID);
                     for (int i = 0; i < savedQueries.size(); i++) {
-                        if (Objects.equals(savedQueries.get(i).id(), selectedId)) {
+                        if (Objects.equals(savedQueries.get(i).getId(), selectedId)) {
                             savedQueriesCombo.select(i);
                             break;
                         }

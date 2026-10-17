@@ -120,7 +120,7 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
             final YouTrackApi api = new YouTrackApiImpl(repository.getRepositoryUrl(), credentials.getPassword());
             final SavedQuery savedQuery = api.getSavedQuery(savedQueryId);
             Policy.checkCanceled(ourMonitor);
-            final List<Issue> issues = savedQuery.issues();
+            final List<Issue> issues = savedQuery.getIssues();
             ourMonitor.subTask("Processing " + issues.size() + " issues");
             for (final Issue issue : issues) {
                 Policy.checkCanceled(ourMonitor);
