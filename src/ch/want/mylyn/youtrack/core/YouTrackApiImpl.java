@@ -9,6 +9,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 
 import ch.want.mylyn.youtrack.ObjectMapperAccessor;
 import ch.want.mylyn.youtrack.model.Issue;
+import ch.want.mylyn.youtrack.model.IssueComment;
 import ch.want.mylyn.youtrack.model.SavedQuery;
 import ch.want.mylyn.youtrack.model.User;
 
@@ -53,8 +54,16 @@ public class YouTrackApiImpl implements YouTrackApi {
 
     @Override
     public Issue saveIssue(final Issue issue) throws IOException {
+        final List<IssueComment> newComments = issue.getComments();
+        issue.setComments(null);
         final String jsonBody = ObjectMapperAccessor.objectMapper().writeValueAsString(issue);
-        final String jsonResponse = httpClient.post("/api/issues/" + issue.getId() + "?fields=" + ISSUE_FIELDS_FULL, jsonBody);
-        return ObjectMapperAccessor.objectMapper().readValue(jsonResponse, Issue.class);
+        httpClient.post("/api/issues/" + issue.getId(), jsonBody);
+        if (newComments != null) {
+            for (final IssueComment c : newComments) {
+                final String commentBody = ObjectMapperAccessor.objectMapper().writeValueAsString(c);
+                httpClient.post("/api/issues/" + issue.getId() + "/comments", commentBody);
+            }
+        }
+        return getIssue(issue.getId());
     }
 }

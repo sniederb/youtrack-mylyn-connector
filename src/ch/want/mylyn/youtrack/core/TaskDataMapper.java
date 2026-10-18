@@ -99,6 +99,9 @@ public class TaskDataMapper {
                 commentNumber++;
             }
         }
+        if (youtrackIssue.getId() != null) {
+            createAttribute(YouTrackAttribute.NEWCOMMENT);
+        }
         return taskData;
     }
 
@@ -129,7 +132,9 @@ public class TaskDataMapper {
         if (attribute != null) {
             final IssueComment newComment = new IssueComment();
             newComment.setText(taskData.getAttributeMapper().getValue(attribute));
-            youtrackIssue.setComments(List.of(newComment));
+            if ((newComment.getText() != null) && !newComment.getText().isBlank()) {
+                youtrackIssue.setComments(List.of(newComment));
+            }
         }
         return youtrackIssue;
     }
