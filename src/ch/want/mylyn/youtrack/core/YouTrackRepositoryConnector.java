@@ -28,6 +28,7 @@ import ch.want.mylyn.youtrack.model.SavedQuery;
 public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
 
     private final YouTrackTaskDataHandler taskDataHandler = new YouTrackTaskDataHandler();
+    private final ProjectConfigurationLoadingCache configurationCache = new ProjectConfigurationLoadingCache();
 
     @Override
     public String getConnectorKind() {
@@ -85,7 +86,7 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
             final YouTrackApi api = new YouTrackApiImpl(repository.getRepositoryUrl(), credentials.getPassword());
             final Issue issue = api.getIssue(TaskDataMapper.convertFromTaskDataId(taskId));
             Policy.checkCanceled(ourMonitor);
-            return createTaskData(repository, issue);
+            return createTaskData(repository, api, issue);
         } catch (final OperationCanceledException ex) {
             throw ex;
         } catch (final IOException ex) {
@@ -124,7 +125,7 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
             ourMonitor.subTask("Processing " + issues.size() + " issues");
             for (final Issue issue : issues) {
                 Policy.checkCanceled(ourMonitor);
-                final TaskData taskData = createTaskData(repository, issue);
+                final TaskData taskData = createTaskData(repository, null, issue);
                 taskData.setPartial(true);
                 dataCollector.accept(taskData);
             }
@@ -140,7 +141,7 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
 
     @Override
     public void updateRepositoryConfiguration(final TaskRepository repository, final IProgressMonitor monitor) throws CoreException {
-        // TODO
+        configurationCache.clear(repository.getUrl());
     }
 
     @Override
@@ -164,7 +165,14 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
         return taskDataHandler;
     }
 
-    private TaskData createTaskData(final TaskRepository repository, final Issue issue) {
-        return new TaskDataMapper(repository, getTaskDataHandler(), issue).getTaskData();
+    /**
+     * @param repository
+     * @param api
+     *            Pass in null if project configuration should not be used
+     * @param issue
+     * @return
+     */
+    private TaskData createTaskData(final TaskRepository repository, final YouTrackApi api, final Issue issue) {
+        return new TaskDataMapper(repository, getTaskDataHandler(), configurationCache, issue).getTaskData(api);
     }
 }

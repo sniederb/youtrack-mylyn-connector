@@ -3,6 +3,7 @@ package ch.want.mylyn.youtrack.ui.editor;
 import java.util.Objects;
 import java.util.Set;
 
+import org.eclipse.mylyn.internal.tasks.ui.editors.TaskEditorAttributePart;
 import org.eclipse.mylyn.internal.tasks.ui.editors.TaskEditorDescriptionPart;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPage;
 import org.eclipse.mylyn.tasks.ui.editors.AbstractTaskEditorPart;
@@ -32,6 +33,20 @@ public class YouTrackTaskEditorPage extends AbstractTaskEditorPage {
                 return new YouTrackTaskEditorSummaryPart();
             }
         }.setPath(PATH_HEADER));
+        removePart(parts, ID_PART_ATTRIBUTES);
+        parts.add(new TaskEditorPartDescriptor(ID_PART_ATTRIBUTES) {
+
+            @Override
+            public AbstractTaskEditorPart createPart() {
+                return new TaskEditorAttributePart() {
+
+                    @Override
+                    protected boolean shouldExpandOnCreate() {
+                        return true;
+                    }
+                };
+            }
+        }.setPath(PATH_ATTRIBUTES));
         removePart(parts, ID_PART_DESCRIPTION);
         parts.add(new TaskEditorPartDescriptor(ID_PART_DESCRIPTION) {
 

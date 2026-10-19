@@ -1,11 +1,17 @@
 package ch.want.mylyn.youtrack.model;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 public class CustomField {
 
+    private String id;
     private String name;
-    private JsonNode value;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(final String id) {
+        this.id = id;
+    }
 
     public String getName() {
         return name;
@@ -13,13 +19,5 @@ public class CustomField {
 
     public void setName(final String name) {
         this.name = name;
-    }
-
-    public JsonNode getValue() {
-        return value;
-    }
-
-    public void setValue(final JsonNode value) {
-        this.value = value;
     }
 }

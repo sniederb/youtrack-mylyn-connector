@@ -16,7 +16,7 @@ public class Issue {
     private List<IssueAttachment> attachments;
     private List<IssueComment> comments;
     private Integer commentsCount;
-    private List<CustomField> customFields;
+    private List<IssueCustomField﻿> customFields;
 
     public String getId() {
         return id;
@@ -114,11 +114,11 @@ public class Issue {
         this.commentsCount = commentsCount;
     }
 
-    public List<CustomField> getCustomFields() {
+    public List<IssueCustomField﻿> getCustomFields() {
         return customFields;
     }
 
-    public void setCustomFields(final List<CustomField> customFields) {
+    public void setCustomFields(final List<IssueCustomField﻿> customFields) {
         this.customFields = customFields;
     }
 }

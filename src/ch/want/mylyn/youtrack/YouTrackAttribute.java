@@ -6,13 +6,13 @@ public enum YouTrackAttribute {
 
     ID("youtrack.id", TaskAttribute.TYPE_SHORT_TEXT, "ID", true, true), //
     KEY(TaskAttribute.TASK_KEY, TaskAttribute.TYPE_SHORT_TEXT, "Key", false, true), //
-    PRIORITY(TaskAttribute.PRIORITY, TaskAttribute.TYPE_SHORT_TEXT, "Priority", false, true), //
+    PRIORITY(TaskAttribute.PRIORITY, TaskAttribute.TYPE_SINGLE_SELECT, "Priority", false, false), //
     TYPE(TaskAttribute.TASK_KIND, TaskAttribute.TYPE_SHORT_TEXT, "Type", true, true), //
-    STATUS(TaskAttribute.STATUS, TaskAttribute.TYPE_SHORT_TEXT, "Status", false, true), //
+    STATUS(TaskAttribute.STATUS, TaskAttribute.TYPE_SINGLE_SELECT, "Status", false, false), //
     SUMMARY(TaskAttribute.SUMMARY, TaskAttribute.TYPE_SHORT_RICH_TEXT, "Summary", true, false), //
     DESCRIPTION(TaskAttribute.DESCRIPTION, TaskAttribute.TYPE_LONG_RICH_TEXT, "Description", true, false), //
-    CREATION_DATE(TaskAttribute.DATE_CREATION, TaskAttribute.TYPE_DATE, "Created", false, true), //
-    MODIFIED_DATE(TaskAttribute.DATE_MODIFICATION, TaskAttribute.TYPE_DATE, "Modified", false, true), //
+    CREATION_DATE(TaskAttribute.DATE_CREATION, TaskAttribute.TYPE_DATETIME, "Created", false, true), //
+    MODIFIED_DATE(TaskAttribute.DATE_MODIFICATION, TaskAttribute.TYPE_DATETIME, "Modified", false, true), //
     TASK_URL(TaskAttribute.TASK_URL, TaskAttribute.TYPE_URL, "URL", false, false), //
     REPORTER(TaskAttribute.USER_REPORTER, TaskAttribute.TYPE_PERSON, "Reported", false, true), //
     ASSIGNED(TaskAttribute.USER_ASSIGNED, TaskAttribute.TYPE_PERSON, "Assigned", false, true), //
