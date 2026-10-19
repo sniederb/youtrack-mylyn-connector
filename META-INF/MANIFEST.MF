@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Mylyn Tasks Connector: YouTrack
 Bundle-SymbolicName: ch.want.mylyn.youtrack;singleton:=true
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 0.2.0.qualifier
 Bundle-Vendor: WaNT GmbH
 Require-Bundle: org.eclipse.swt,
  org.eclipse.jface,
