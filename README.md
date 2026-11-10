@@ -1,54 +1,34 @@
-# Mylyn YouTrack Connector
+# Eclipse Mylyn Connector for JetBrains YouTrack
 
-A personal Eclipse Mylyn integration for JetBrains YouTrack.
+A lightweight Eclipse IDE plugin that integrates JetBrains YouTrack into the Mylyn 
+task management framework. This connector allows developers to view, track, and manage 
+YouTrack issues directly inside the Eclipse workbench.
 
-This project provides an Eclipse plug-in that allows Mylyn to connect 
-to a YouTrack repository and work with YouTrack issues from within Eclipse.
-
-## Project status
-
-This is a personal project, developed for my own use. It is not intended to 
-be a complete, general-purpose Mylyn connector or a community-supported 
-alternative to other issue-tracking integrations.
-
-The implementation is limited to the functionality I need. Features, 
-compatibility and behaviour may change without notice. There is no 
-commitment to maintain the project, provide support or address issues 
-reported by other users.
+## Key Features
+* **Token-Based Authentication:** Securely connects to your YouTrack instance using permanent security tokens.
+* **Task Synchronization:** Integrates YouTrack bug tracking directly into the Eclipse Mylyn task list view.
+* **Lightweight Footprint:** Developed focusing entirely on core issue-tracking functionalities using the Eclipse Mylyn Bugzilla UI baseline.
 
 ## Installation
+A pre-built plugin JAR is available from the GitHub Releases page.
 
-Pre-built plug-in JARs are available from the 
-[GitHub Releases](https://github.com/sniederb/youtrack-mylyn-connector/releases) page.
-
-To install a release manually:
-
-1. Download the plug-in JAR from the desired release.
-2. Copy the JAR into the `dropins` directory of your Eclipse installation.
+1. Download the plugin `.jar` file from the latest release.
+2. Drop the `.jar` into the `dropins/` directory of your Eclipse installation path.
 3. Restart Eclipse.
 
-This is a simple manual installation; no update site or Eclipse Marketplace 
-entry is provided.
-
 ## Configuration
+1. Open the Mylyn **Task Repositories** view in Eclipse.
+2. Add a new repository and select **YouTrack**.
+3. Input your YouTrack server URL.
+4. Generate a permanent token in YouTrack under **Users → Account Security → Tokens**.
+5. Enter this token into the **Password** field in Eclipse.
 
-Configure a YouTrack task repository in Eclipse Mylyn using your YouTrack 
-server URL and a permanent token.
+## Project Scope & Maintenance
+This repository provides a minimalist, targeted implementation of the YouTrack API for Mylyn. 
+It is explicitly limited to core issue tracking features and is maintained on an as-needed basis. 
 
-Create a permanent token in YouTrack under **Users → Account Security → Tokens** 
-and enter it as the repository password.
+* **Contributions:** Bug fixes and compatibility updates are welcome via Pull Requests.
+* **Support:** No formal support or feature guarantees are provided. The software is provided as-is under the terms of the project license.
 
-## Disclaimer
-
-This software is provided as-is, without warranties or guarantees of any kind. 
-Use it at your own risk. The author accepts no liability for damages or losses 
-arising from its use, to the extent permitted by applicable law.
-
-See [LICENSE](LICENSE) for the applicable terms.
-
-## Background
-
-The implementation draws on the Eclipse Mylyn Bugzilla UI and core plug-ins.
-
-This project is independent and is not an official JetBrains or Eclipse Foundation 
-product.
+---
+*Disclaimer: This project is an independent community utility and is not an official product of JetBrains or the Eclipse Foundation.*
