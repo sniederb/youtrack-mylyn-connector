@@ -157,7 +157,7 @@ public class YouTrackRepositoryConnector extends AbstractRepositoryConnector {
 
     @Override
     public boolean canCreateTaskFromKey(final TaskRepository repository) {
-        return false;
+        return true;
     }
 
     @Override

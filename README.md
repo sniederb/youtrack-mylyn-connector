@@ -16,6 +16,16 @@ A pre-built plugin JAR is available from the GitHub Releases page.
 2. Drop the `.jar` into the `dropins/` directory of your Eclipse installation path.
 3. Restart Eclipse.
 
+To create a JAR from Eclipse:
+
+1. Right-click the plug-in project in Package Explorer.
+2. Select Export….
+3. Choose Plug-in Development → Deployable plug-ins and fragments.
+4. Click Next.
+5. Select your YouTrack connector plug-in.
+6. Choose an output directory.
+7. Finish the export.
+
 ## Configuration
 1. Open the Mylyn **Task Repositories** view in Eclipse.
 2. Add a new repository and select **YouTrack**.
