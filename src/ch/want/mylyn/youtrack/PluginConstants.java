@@ -11,6 +11,8 @@ public final class PluginConstants {
     public static final String PLUGIN_ID = "ch.want.mylyn.youtrack";
     public static final String ATTRIBUTE_SAVED_QUERY_ID = "youtrack.savedQueryId";
     public static final String ISSUE_URL_PATH = "/issue/"; // NOSONAR
+    public static final String ID_PART_ASSOCIATIONS = "ch.want.mylyn.youtrack.ui.editors.parts.associations";
+    public static final String TYPE_LINK = "youtrack.link";
 
     private PluginConstants() {
     }

@@ -22,6 +22,7 @@ import ch.want.mylyn.youtrack.YouTrackAttribute;
 import ch.want.mylyn.youtrack.model.Issue;
 import ch.want.mylyn.youtrack.model.IssueComment;
 import ch.want.mylyn.youtrack.model.IssueCustomField﻿;
+import ch.want.mylyn.youtrack.model.IssueLink;
 
 public class TaskDataMapper {
 
@@ -93,6 +94,7 @@ public class TaskDataMapper {
             createAttribute(YouTrackAttribute.PROJECT, youtrackIssue.getProject().getName());
         }
         addCommentAttributes();
+        addIssueLinkAttributes();
         return taskData;
     }
 
@@ -135,9 +137,9 @@ public class TaskDataMapper {
     }
 
     private void addCommentAttributes() {
-        final TaskAttribute root = taskData.getRoot();
         final List<IssueComment> comments = youtrackIssue.getComments();
         if (comments != null) {
+            final TaskAttribute root = taskData.getRoot();
             int commentNumber = 1;
             for (final IssueComment comment : comments) {
                 final TaskAttribute commentAttribute = root.createAttribute(TaskAttribute.PREFIX_COMMENT + commentNumber);
@@ -156,6 +158,28 @@ public class TaskDataMapper {
         }
         if (youtrackIssue.getId() != null) {
             createAttribute(YouTrackAttribute.NEWCOMMENT);
+        }
+    }
+
+    private void addIssueLinkAttributes() {
+        final List<IssueLink> links = youtrackIssue.getLinks();
+        if (links != null) {
+            final TaskAttribute root = taskData.getRoot();
+            final TaskAttributeMapper mapper = taskData.getAttributeMapper();
+            int linkNumber = 1;
+            for (final IssueLink link : links) {
+                if (link.getIssues() != null) {
+                    for (final Issue otherIssue : link.getIssues()) {
+                        final TaskAttribute linkAttribute = root.createAttribute("task.common.link-" + linkNumber);
+                        linkAttribute.getMetaData().defaults().setType(PluginConstants.TYPE_LINK);
+                        mapper.setValue(linkAttribute, link.getId());
+                        mapper.setValue(linkAttribute.createAttribute(YouTrackAttribute.LINK_TYPE.id()), link.getLinkType().getTargetToSource());
+                        mapper.setValue(linkAttribute.createAttribute(YouTrackAttribute.LINK_TARGET_ID.id()), otherIssue.getIdReadable());
+                        mapper.setValue(linkAttribute.createAttribute(YouTrackAttribute.LINK_TARGET_SUMMARY.id()), otherIssue.getSummary());
+                        linkNumber++;
+                    }
+                }
+            }
         }
     }
 

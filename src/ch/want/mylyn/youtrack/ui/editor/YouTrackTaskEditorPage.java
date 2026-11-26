@@ -58,6 +58,13 @@ public class YouTrackTaskEditorPage extends AbstractTaskEditorPage {
                 return part;
             }
         }.setPath(PATH_ATTRIBUTES));
+        parts.add(new TaskEditorPartDescriptor(PluginConstants.ID_PART_ASSOCIATIONS) {
+
+            @Override
+            public AbstractTaskEditorPart createPart() {
+                return new YouTrackIssueLinksPart();
+            }
+        }.setPath(PATH_PLANNING));
         return parts;
     }
 

@@ -17,7 +17,11 @@ public enum YouTrackAttribute {
     REPORTER(TaskAttribute.USER_REPORTER, TaskAttribute.TYPE_PERSON, "Reported", false, true), //
     ASSIGNED(TaskAttribute.USER_ASSIGNED, TaskAttribute.TYPE_PERSON, "Assigned", false, true), //
     PROJECT(TaskAttribute.PRODUCT, TaskAttribute.TYPE_SINGLE_SELECT, "Project", false, true), //
-    NEWCOMMENT(TaskAttribute.COMMENT_NEW, TaskAttribute.TYPE_LONG_RICH_TEXT, "New comment", true, false);
+    NEWCOMMENT(TaskAttribute.COMMENT_NEW, TaskAttribute.TYPE_LONG_RICH_TEXT, "New comment", true, false), //
+    LINK_ID("youtrack.link.id", TaskAttribute.TYPE_SHORT_TEXT, "ID", true, true), //
+    LINK_TYPE("youtrack.link.type", TaskAttribute.TYPE_SHORT_TEXT, "Type", false, true), //
+    LINK_TARGET_ID("youtrack.link.target.id", TaskAttribute.TYPE_SHORT_TEXT, "ID", false, true), //
+    LINK_TARGET_SUMMARY("youtrack.link.target.summary", TaskAttribute.TYPE_SHORT_RICH_TEXT, "Summary", false, true);
 
     private final String id;
     private final boolean hidden;

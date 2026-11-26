@@ -14,6 +14,7 @@ public class Issue {
     private Project project;
     private User reporter;
     private List<IssueAttachment> attachments;
+    private List<IssueLink> links;
     private List<IssueComment> comments;
     private Integer commentsCount;
     private List<IssueCustomField﻿> customFields;
@@ -120,5 +121,13 @@ public class Issue {
 
     public void setCustomFields(final List<IssueCustomField﻿> customFields) {
         this.customFields = customFields;
+    }
+
+    public List<IssueLink> getLinks() {
+        return links;
+    }
+
+    public void setLinks(final List<IssueLink> links) {
+        this.links = links;
     }
 }

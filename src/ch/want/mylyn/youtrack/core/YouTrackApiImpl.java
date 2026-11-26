@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import ch.want.mylyn.youtrack.ObjectMapperAccessor;
 import ch.want.mylyn.youtrack.model.Issue;
 import ch.want.mylyn.youtrack.model.IssueComment;
+import ch.want.mylyn.youtrack.model.IssueLink;
 import ch.want.mylyn.youtrack.model.ProjectCustomField;
 import ch.want.mylyn.youtrack.model.SavedQuery;
 import ch.want.mylyn.youtrack.model.User;
@@ -18,9 +19,12 @@ public class YouTrackApiImpl implements YouTrackApi {
 
     private static final String ISSUE_FIELDS_SHORT = "id,idReadable,summary,customFields(name,value(name,login,fullName,presentation))";
     private static final String ISSUE_FIELDS_FULL = "id,idReadable,summary,description,created,updated,resolved,project(id,name,shortName),reporter(id,login,name),assignee(id,login,name),customFields(name,value(id,name,login,fullName,presentation)),comments(id,created,text,author(id,login,name))";
+    private static final String ISSUELINK_FIELDS = "id,direction,linkType(id,name,sourceToTarget,targetToSource),issues(id,idReadable,summary)";
     private static final TypeReference<List<SavedQuery>> SAVEDQUERY_TYPE = new TypeReference<>() {
     };
     private static final TypeReference<List<ProjectCustomField>> CUSTOMFIELD_TYPE = new TypeReference<>() {
+    };
+    private static final TypeReference<List<IssueLink>> ISSUELINK_TYPE = new TypeReference<>() {
     };
     private final HttpClientWrapper httpClient;
 
@@ -59,7 +63,11 @@ public class YouTrackApiImpl implements YouTrackApi {
     public Issue getIssue(final String taskId) throws IOException {
         final String encodedTaskId = URLEncoder.encode(taskId, StandardCharsets.ISO_8859_1);
         final String jsonResponse = httpClient.get("/api/issues/" + encodedTaskId + "?fields=" + ISSUE_FIELDS_FULL);
-        return ObjectMapperAccessor.objectMapper().readValue(jsonResponse, Issue.class);
+        final Issue result = ObjectMapperAccessor.objectMapper().readValue(jsonResponse, Issue.class);
+        final String jsonLinksResponse = httpClient.get("/api/issues/" + encodedTaskId + "/links?fields=" + ISSUELINK_FIELDS);
+        final List<IssueLink> links = ObjectMapperAccessor.objectMapper().readValue(jsonLinksResponse, ISSUELINK_TYPE);
+        result.setLinks(links);
+        return result;
     }
 
     @Override
